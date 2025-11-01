@@ -1,12 +1,13 @@
-const Header = ({ cartCount, onResetCart }) => {
+import { clearCart } from '../services/api';
+
+const Header = ({ cartCount, onCartCountChange }) => {
   const currentPath = window.location.hash || '#/';
   const isProductDetail = currentPath.startsWith('#/product/');
   
   const handleReset = () => {
     if (window.confirm('¿Quieres vaciar el carrito?')) {
-      localStorage.setItem('cartCount', '0');
-      if (onResetCart) onResetCart();
-      window.location.reload();
+      const newCount = clearCart();
+      onCartCountChange(newCount);
     }
   };
   

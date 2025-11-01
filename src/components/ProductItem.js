@@ -1,4 +1,6 @@
 const ProductItem = ({ product, onClick }) => {
+  const displayPrice = product.price ? `${product.price}€` : 'Precio no disponible';
+  
   return (
     <div 
       onClick={onClick}
@@ -9,12 +11,17 @@ const ProductItem = ({ product, onClick }) => {
           src={product.imgUrl} 
           alt={`${product.brand} ${product.model}`}
           className="w-full h-full object-contain"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/300x300?text=Sin+Imagen';
+          }}
         />
       </div>
       <div className="p-4">
-        <p className="text-sm text-gray-500 font-semibold">{product.brand}</p>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">{product.model}</h3>
-        <p className="text-2xl font-bold text-blue-600">{product.price}€</p>
+        <p className="text-sm text-gray-500 font-semibold">{product.brand || 'Marca desconocida'}</p>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">{product.model || 'Modelo desconocido'}</h3>
+        <p className={`text-2xl font-bold ${product.price ? 'text-blue-600' : 'text-gray-400'}`}>
+          {displayPrice}
+        </p>
       </div>
     </div>
   );

@@ -1,19 +1,23 @@
 const ProductDescription = ({ product }) => {
   // Función auxiliar para mostrar valores de forma segura
   const displayValue = (value) => {
-    if (value === undefined || value === null) return 'N/A';
+    if (value === undefined || value === null || value === '') return 'N/A';
     if (Array.isArray(value)) {
       return value.length > 0 ? value.join(', ') : 'N/A';
     }
     return value;
   };
 
+  const displayPrice = product.price ? `${product.price}€` : 'Precio no disponible';
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 className="text-3xl font-bold text-gray-900 mb-2">
-        {product.brand} {product.model}
+        {product.brand || 'Marca desconocida'} {product.model || 'Modelo desconocido'}
       </h2>
-      <p className="text-3xl font-bold text-blue-600 mb-6">{product.price}€</p>
+      <p className={`text-3xl font-bold mb-6 ${product.price ? 'text-blue-600' : 'text-gray-400'}`}>
+        {displayPrice}
+      </p>
       
       <div className="space-y-3">
         <DetailRow label="CPU" value={displayValue(product.cpu)} />

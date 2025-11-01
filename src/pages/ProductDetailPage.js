@@ -13,24 +13,35 @@ const ProductDetailPage = ({ productId, navigate, onAddToCart }) => {
     const loadProduct = async () => {
       setLoading(true);
       setError(null);
+      
+      console.log('🔍 Cargando producto con ID:', productId);
+      
       try {
         const data = await getProduct(productId);
-        console.log('Producto cargado:', data);
+        
+        if (!data) {
+          throw new Error('No se recibieron datos del producto');
+        }
+        
+        console.log('✅ Producto cargado exitosamente:', data);
         setProduct(data);
       } catch (error) {
-        console.error('Error loading product:', error);
-        setError('No se pudo cargar el producto');
+        console.error('❌ Error loading product:', error);
+        setError(error.message || 'No se pudo cargar el producto');
       } finally {
         setLoading(false);
       }
     };
     
-    loadProduct();
+    if (productId) {
+      loadProduct();
+    }
   }, [productId]);
   
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
         <div className="text-xl text-gray-600">Cargando producto...</div>
       </div>
     );
@@ -39,14 +50,20 @@ const ProductDetailPage = ({ productId, navigate, onAddToCart }) => {
   if (error || !product) {
     return (
       <div className="text-center py-12">
-        <p className="text-xl text-gray-600 mb-4">
-          {error || 'Producto no encontrado'}
-        </p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto mb-6">
+          <div className="text-4xl mb-4">⚠️</div>
+          <p className="text-xl text-red-600 font-semibold mb-2">
+            {error || 'Producto no encontrado'}
+          </p>
+          <p className="text-sm text-gray-600">
+            ID del producto: {productId}
+          </p>
+        </div>
         <button
           onClick={() => navigate('#/')}
-          className="text-blue-600 hover:underline font-semibold"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
         >
-          ← Volver a la lista
+          ← Volver a la lista de productos
         </button>
       </div>
     );

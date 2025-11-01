@@ -1,42 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Router from './utils/router';
 import Header from './components/Header';
 import ProductListPage from './pages/ProductListPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-import { addToCart } from './services/api';
+import { addToCart, getCartCount } from './services/api';
 
 function App() {
   const [cartCount, setCartCount] = useState(() => {
-    const saved = localStorage.getItem('cartCount');
-    return saved ? parseInt(saved, 10) : 0;
+    // Inicializamos con el carrito almacenado localmente
+    return getCartCount();
   });
   
   const handleAddToCart = async (productData) => {
+    console.log('🛒 Intentando añadir al carrito:', productData);
+    
     try {
+      // La función addToCart ahora gestiona el carrito localmente
       const response = await addToCart(productData);
-      console.log('Respuesta del carrito:', response);
+      console.log('📦 Respuesta:', response);
       
-      // Actualizar con el valor que devuelve la API
-      const newCount = response.count;
-      setCartCount(newCount);
-      localStorage.setItem('cartCount', newCount.toString());
+      if (response && typeof response.count === 'number') {
+        setCartCount(response.count);
+        alert(`✅ Producto añadido al carrito\nTotal de productos: ${response.count}`);
+      } else {
+        throw new Error('Respuesta inválida');
+      }
       
-      alert('✅ Producto añadido al carrito correctamente');
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('❌ Error al añadir el producto al carrito');
+      console.error('❌ Error al añadir al carrito:', error);
+      alert(`❌ Error al añadir el producto al carrito\n\nDetalle: ${error.message}`);
     }
   };
   
   return (
     <Router>
       {({ currentPath, navigate }) => {
-        const productMatch = currentPath.match(/#\/product\/(\w+)/);
+        const productMatch = currentPath.match(/#\/product\/([a-zA-Z0-9_-]+)/);
         const productId = productMatch ? productMatch[1] : null;
         
         return (
           <div className="min-h-screen bg-gray-100">
-            <Header cartCount={cartCount} />
+            <Header cartCount={cartCount} onCartCountChange={setCartCount} />
             
             <main className="max-w-7xl mx-auto px-4 py-8">
               {productId ? (
