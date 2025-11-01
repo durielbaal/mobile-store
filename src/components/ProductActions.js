@@ -5,11 +5,21 @@ const ProductActions = ({ product, onAddToCart }) => {
   const colors = product?.options?.colors || [];
   const storages = product?.options?.storages || [];
   
+  // Verificar si el producto tiene precio disponible
+  const isPriceAvailable = product?.price !== null && 
+                           product?.price !== undefined && 
+                           product?.price !== '';
+  
   const [selectedColor, setSelectedColor] = useState(colors.length > 0 ? colors[0].code : null);
   const [selectedStorage, setSelectedStorage] = useState(storages.length > 0 ? storages[0].code : null);
   const [adding, setAdding] = useState(false);
   
   const handleAddToCart = async () => {
+    if (!isPriceAvailable) {
+      alert('Este producto no está disponible para compra en este momento');
+      return;
+    }
+    
     if (!selectedColor || !selectedStorage) {
       alert('Por favor, selecciona todas las opciones');
       return;
@@ -51,7 +61,8 @@ const ProductActions = ({ product, onAddToCart }) => {
         <select
           value={selectedStorage || ''}
           onChange={(e) => setSelectedStorage(Number(e.target.value))}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          disabled={!isPriceAvailable}
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           {storages.map(storage => (
             <option key={storage.code} value={storage.code}>
@@ -68,7 +79,8 @@ const ProductActions = ({ product, onAddToCart }) => {
         <select
           value={selectedColor || ''}
           onChange={(e) => setSelectedColor(Number(e.target.value))}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          disabled={!isPriceAvailable}
+          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
         >
           {colors.map(color => (
             <option key={color.code} value={color.code}>
@@ -78,7 +90,7 @@ const ProductActions = ({ product, onAddToCart }) => {
         </select>
       </div>
       
-      {selectedStorageObj && selectedColorObj && (
+      {selectedStorageObj && selectedColorObj && isPriceAvailable && (
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <p className="text-sm text-gray-600">Selección actual:</p>
           <p className="font-semibold text-gray-900">
@@ -87,12 +99,29 @@ const ProductActions = ({ product, onAddToCart }) => {
         </div>
       )}
       
+      {!isPriceAvailable && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-red-600 font-semibold flex items-center">
+            <span className="mr-2">⚠️</span>
+            Producto no disponible para compra
+          </p>
+          <p className="text-xs text-red-500 mt-1">
+            Este producto no tiene precio disponible en este momento
+          </p>
+        </div>
+      )}
+      
       <button
         onClick={handleAddToCart}
-        disabled={adding || !selectedColor || !selectedStorage}
-        className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={adding || !selectedColor || !selectedStorage || !isPriceAvailable}
+        className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
+        title={!isPriceAvailable ? 'Producto no disponible' : ''}
       >
-        {adding ? 'Añadiendo...' : 'Añadir al carrito'}
+        {!isPriceAvailable 
+          ? '❌ No disponible' 
+          : adding 
+            ? 'Añadiendo...' 
+            : 'Añadir al carrito'}
       </button>
     </div>
   );
